@@ -1,0 +1,34 @@
+#!/bin/bash
+
+OLDIFS=$IFS
+
+# %q makes it print as reusable output, xargs gets rid of the extra whitespace
+str=$(printf "%q" "$1" | xargs)
+delimiter=${2:-" "}
+joiner=${3:-" "}
+
+if [ "$delimiter" == "$joiner" ]; then
+  echo $str
+  exit
+elif [ "$delimiter" == '\n' ]; then
+  delimiter_name="NEWLINE"
+  IFS=$'\n' read -rd '' -a splitted_arr <<< "$str"
+else
+  delimiter_name="$delimiter"
+  IFS=$delimiter read -ra splitted_arr <<< "$str"
+fi
+
+if [ "$3" == "--debug" ] || [ "$3" == "-d" ]; then
+  echo --------------------------------------------
+  echo DEBUG INFO from split_string
+  echo Splitted into array \'\$split_string_out\' using \'$delimiter_name\'
+  echo --------------------------------------------
+  for i in "${splitted_arr[@]}"; do
+    echo "  $i"
+  done
+  echo --------------------------------------------
+fi
+
+echo $(IFS="$joiner"; echo "${splitted_arr[*]}")
+
+IFS=$OLDIFS

@@ -1,0 +1,87 @@
+#!/bin/bash
+#
+# This scripts decides where the output goes based on the arguments provided
+# or other conditions specified.
+# Dash (-) arguments
+args=()
+while [ $OPTIND -le "$#" ]
+do
+  if getopts t:u:Gg option; then
+    case $option in
+      # For how many seconds to display the message (only applies to GUI mode).
+      # Defaults are set based on priority below, but this overrides them.
+      (t) timeout=$OPTARG;;
+      # Urgency. Affects the colors of the message that's displayed,
+      # be it in GUI or CLI mode.
+      (u) urgency=$OPTARG;;
+      # Most probably it applies to GUI and displaying it in in dunstify.
+      # In case the message must to the terminal output, the title will
+      # simply be the first line, displayed in bold (formatting might change
+      # in the future.
+      (g) force_gui=1;;
+      # Capital "G", because it's the opposite of -g
+      # Sometimes, we just want the CLI output, even if we're running the script from the GUI
+      # (or under some other conditions, that imply its presencse). It's not up for this script
+      # to decide.
+      (G) force_cli=1;;
+    esac
+  else
+    args+=("${!OPTIND}")
+    ((OPTIND++))
+  fi
+done
+
+gui="$DESKTOP_STARTUP_ID"
+receiver=${receiver:-$(whoami)}
+urgency=${urgency:-low}
+
+# Title is the the first positional argument,
+# Body is the second.
+#
+#  * in CLI mode $title is displayed in bold as the first line, with the body following
+#    the linebreak.
+#
+#  * in GUI mode $title is used when calling `dunst` as, well, the title.
+#
+title="${args[0]}"
+body="${args[1]}"
+
+
+# Determine where the output goes
+if [[ -n $gui ]]; then
+  if [[ -n $force_cli ]]; then out="cli"; else out="gui"; fi
+else
+  if [[ -n $force_gui ]]; then out="gui"; else out="cli"; fi
+fi
+
+if [[ $out == "gui" ]]; then
+  if [[ -z $timeout ]]; then
+    case $urgency in
+      (normal)    timeout=15;;
+      (warn)      timeout=25;;
+      (critical)  timeout=0;; # sticks until clicked
+      (*)         timeout=10
+    esac
+  fi
+  # Because milliseconds.
+  timeout="${timeout}000"
+
+  # In dunstify, timeout is in milliseconds, so we just add three zeros to the end
+  # This is in order for dunstify to be able to send notifications when launched with sudo or from root.
+  # In that case, receiver must be specified with the -u (as in 'user') option.
+  #DISPLAY=:0.0
+  #DBUS_SESSION_BUS_ADDRESS="$(sudo -u $receiver dbus-launch | head -n1 | sed 's/DBUS_SESSION_BUS_ADDRESS=//')"
+  dunstify -u $urgency -t $timeout "$title" "$body" > /dev/null
+else
+  source $SHARED_SCRIPTS_PATH/utils/formatting.sh
+  case $urgency in
+    (low)       color="gray";;
+    (normal)    color="white";;
+    (warn)      color="yellow";;
+    (critical)  color="red";;
+  esac
+  if [[ -n "$title" ]]; then
+    echo -e "$(wrap "$title" "color $color; color bold")"
+  fi
+  echo -e "$(wrap "$body" "color $color")"
+fi

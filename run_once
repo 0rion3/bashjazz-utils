@@ -1,0 +1,96 @@
+#!/bin/bash
+source ~/system/scripts/utils/split_string.sh
+
+print_log () {
+  if [ -n "$DEBUG_START_IF_NOT_RUNNING" ]; then echo -e "$1"; fi
+}
+
+function_arg_names=( wm-class wm-class-to wm-class-from ) # We have only one function arg now, but it may change
+original_cmd=( "$@" )
+cmd_arr=( )
+
+for i in "${original_cmd[@]}"; do
+
+  is_native_arg=true
+
+  if [[ $i =~ "=" ]]; then
+    split_string $i "="
+    arg_name=$(echo "${split_string_out[0]}" | sed 's/^--//')
+    arg_value=${split_string_out[1]}
+    if [[ " ${function_arg_names[@]} " =~ " ${arg_name} " ]]; then
+      arg_name=$(echo $arg_name | tr '-' '_')
+      declare "$arg_name"=$arg_value
+      is_native_arg=""
+    fi
+  fi
+
+  if [ -n "$is_native_arg" ]; then
+    cmd_arr+=( $(printf %q $i) )
+  fi
+
+done
+
+process_name=$(echo ${cmd_arr[0]})
+
+OLDIFS=$IFS; cmd="$(IFS=' '; echo "${cmd_arr[*]}")"; IFS=$OLDIFS
+first_letter="$(echo ${process_name[0]} | head -c 1)"
+name_regexp_to_match="(^|\s)[$first_letter]$(echo $cmd | cut -c2-)"
+
+print_log "Start if running"
+print_log "----------------"
+
+wm_class_to=${wm_class_to:-$wm_class}
+wm_class_from=${wm_class_from:-$process_name}
+
+is_running="no"
+if [ -n "$wm_class_to" ]; then
+  # If --wm-class is passed, we consider a program to be running
+  # when a window with the same class name is found.
+  window_id=$(xdotool search --class $wm_class_to)
+  if [ -z "$window_id" ]; then window_id=$(xdotool search --classname $wm_class_to); fi
+  if [ -n "$window_id" ]; then is_running="yes"; fi
+else
+  # Otherwise, we check the output of `ps aux` and attempt
+  # to find there the exact full command with all the arguments.
+  echo "$(ps aux | grep -P "$name_regexp_to_match" | grep -v "run_once")"
+  if [ -n "$(ps aux | grep -P "$name_regexp_to_match" | grep -v "run_once")" ]; then is_running="yes"; fi
+fi
+print_log "    Process name: $process_name"
+print_log "    Window class from: $wm_class_from"
+print_log "    Window class to: $wm_class_to"
+print_log "    Command with args: $cmd"
+print_log "    Name regexp to match: $name_regexp_to_match"
+print_log "    Is running: $is_running"
+
+if [ "$is_running" == "no" ]; then
+  print_log "Starting $cmd"
+
+  # We need to record all windows' ids running before we start the command,
+  # so discount them later when assining wm_class
+  exisiting_window_ids=( $(xdotool search --onlyvisible --class $wm_class_from) )
+
+  $cmd > /dev/null 2>&1 &
+  if [ -n "$wm_class_to" ]; then
+    check_counter=0
+    while \
+      [ -z "$window_id" ] && \
+      [ "$check_counter" -lt 20 ]; do
+        echo "atttempts before change: $check_counter"
+        window_id=$(xdotool search --onlyvisible --class $wm_class_from | tail -n1)
+        if [ -z "$window_id" ]; then window_id=$(xdotool search --onlyvisible --classname $wm_class_from | tail -n1); fi
+        if [ -n "$window_id" ] && [[ ! " ${exisiting_window_ids[@]} " =~ " ${window_id} " ]]; then
+          xdotool set_window --classname $wm_class_to $window_id
+        else
+          window_id=""
+          sleep 0.1
+          check_counter=$((check_counter + 1))
+        fi
+    done
+    if [ -z "$window_id" ] || \
+       [ -z "$(xprop -id $window_id | grep "$wm_class_to")" ]; then
+      echo "ERROR: cannot set window class to $wm_class" && exit 1
+    fi
+  fi
+else
+  print_log "Process '$process_name' is already running. Will not be starting another instance."
+fi
