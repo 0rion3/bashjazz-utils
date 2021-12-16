@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $SHARED_SCRIPTS_PATH/utils/colors.sh
+source $SBASHJAZZ_PATH/utils/colors.sh
 
 ind() {
   i=1; num=$1; str=${2:-' '}

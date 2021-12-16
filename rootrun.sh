@@ -20,7 +20,7 @@ rootrun() {
     if [[ -z "$sudo_password" ]]; then
       # rootrun is typically called many times, we don't want to be checking
       # whether password was already request in every script that uses it.
-      declare -g sudo_password="$($SHARED_SCRIPTS_PATH/utils/request_password "Password for sudo")"
+      declare -g sudo_password="$($BASHJAZZZ_PATH/utils/request_password "Password for sudo")"
       echo ""
     fi
   fi

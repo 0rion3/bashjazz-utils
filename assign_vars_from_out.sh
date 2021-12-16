@@ -4,7 +4,7 @@
 # with declare -g, but they might not be set in time the parent process is about to use
 # them and, therefore, they're going to be empty.
 shopt -s lastpipe
-source $SHARED_SCRIPTS_PATH/utils/split_string_pipe.sh
+source $BASHJAZZ_PATH/utils/split_string_pipe.sh
 
 assign_vars_from_out () {
   while read line; do
