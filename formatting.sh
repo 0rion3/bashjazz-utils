@@ -3,7 +3,7 @@
 source $BASHJAZZ_PATH/utils/colors.sh
 
 ind() {
-  i=1; num=$1; str=${2:-' '}
+  i=1; num=$1; str=${2:-"­"} # SOFT HYPHEN U+00AD is used an invisible space
   while [ $i -le $num ]; do
     indentation="$indentation$str"
     ((i++))
