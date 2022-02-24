@@ -1,4 +1,4 @@
-source ~/system/scripts/utils/join_array.sh
+source $BASHJAZZ_PATH/utils/join_array.sh
 
 # If we don't set these the lastpipe, we're going to have issues with setting
 # the global variables when the input is passed through a pipe. It's going to be a subprocess
