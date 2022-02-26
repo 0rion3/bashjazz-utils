@@ -1,4 +1,42 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-CPU_CHIP_NAME="k10temp-pci-00c3"
-sensors $CPU_CHIP_NAME | sed -n 's/^Tdie:\s\+\(+[0-9]\+\.[0-9]\?°C\).*$/\1/p'
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  # Set CPU_CHIP_NAME for your particular system
+  # Example: `export CPU_CHIP_NAME="k10temp-pci-00c3"`
+  if [[ -z "$CPU_CHIP_NAME" ]]; then
+    >&2 echo 'Please set CPU_CHIP_NAME env variable (cputemp)'
+    exit 1
+  fi
+
+  sensors_installed="$(whereis sensors | sed  's/sensors: //')"
+  if [[ -z "$sensors_installed" ]]; then
+    >&2 echo 'Please install `sensors` package, which is required by this program (cputemp).'
+    exit 1
+  else
+    out="$(sensors "$CPU_CHIP_NAME")"
+    if [[ $? == "1" ]] || [[ "$out" == "Parse error in chip name"* ]]; then
+      >&2 echo 'ERROR: No ouput from `sensors`, exited with erorr;'
+      >&2 echo '       Perhaps your set CPU_CHIP_NAME wrong (cputemp).'
+      exit 1
+    else
+      echo "$out" | grep -oP '[0-9]+\.[0-9]+°C' | grep -oP '[0-9]+\.[0-9]' | sort | tail -n1
+    fi
+  fi
+elif [[ "$OSTYPE" == "freebsd"* ]]; then
+  # This will print each cpu core temp in form of 44.0C and a newline
+  # we then sort it to get the highest one, because that's what we're
+  # interested in.
+  #
+  # If you don't see any data, try running
+  #
+  #     sudo kldload -v coretemp
+  #     # OR
+  #     sudo kldload -v amdtemp
+  sysctl dev.cpu | \
+    grep -o 'temperature: .*$' | \
+    sed 's/temperature: //' | \
+    sed 's/C$//' | sort | tail -n1
+else
+  >&2 echo 'ERROR: your system not supported by this program (cputemp).'
+  exit 1
+fi
