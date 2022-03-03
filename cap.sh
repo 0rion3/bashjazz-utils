@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # An easy way to capture the output of the command and reuse it
 #

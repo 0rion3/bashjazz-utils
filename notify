@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # This scripts decides where the output goes based on the arguments provided
 # or other conditions specified.

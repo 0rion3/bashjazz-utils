@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 ############## URL DECODING FUNCTIONS ##############
 # Encode/decode urls so you can feed them to curl.

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source $BASHJAZZ_PATH/utils/colors.sh
 
