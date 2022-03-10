@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+#
+# This program allows to decode and encode complicated cli-commands
+# that need to be passed to other cli-commands into a single argument positional
+# argument, which is a base64 encoded string.
+#
+#   1. When this script is in "encode mode" it will simly use base64 (which is avaialable
+#      as a cli-tool on most operating systems, and encode the command, then return it to
+#      STDOUT.
+#
+#   2. When the script is in "receive and execute mode" it will decode the encoded command
+#      and execute it
+# 
+# The scipt knows which mode to pick based on the prefix of the first argument. If it starts
+# with "cmd_base64_encoded:" it will be in the "receive and execute mode" (2). Otherwise it
+# assumes the "encode mode" and will collect all the arguments passed to it, encode them,
+# then return an a base64 representation of them prefixed with "cmd_base64_encoded:".
+#
+# It'll generally allow you not to worry about:
+#
+#   * cli-arguments with dashes
+#   * new lines in escaping \ before newlines
+#   * whitespace surrounding cli arguments
+#   * whitespace in values of cli arguments and consequently...
+#   * cli-argument values in quotes and escaping quotes.
+#   * ...and there must a number of other things.
+#
+# BUT WHY?
+# --------
+# The initial problem arised when I tried using `docker exec bash -c apt-get clean --dry-run`
+# With that last argument that starts with two dashes --, the Bash interpreter on the host machine
+# decided it wants to get engaged itself, so instead of getting the output form the Docker guest,
+# I somehow got the data from my host machine. I don't know who's fault is that - Docker or Bash -
+# but why suffer trying to find some momentary workaround, when you can just create a solution that
+# would work on any system?
+#
+# This doesn't even have to be about Docker or even containers - could be used for any script to pass
+# on arguments without worrying somethins gets mis interpreted. That seemingly "singlular" argument
+# that's passed, which might include all sorts of crazy cli-commands, is prepended with
+# "base64_encoded_cmd:" to clearly signal what this is.
+#
+# I think a lot of programs use some kind of workarounds, like with two dashes separating what belongs
+# to which script, but that' always very complex to even read and use, let alone implement. Welcome to
+# this solution. I hope you find it useful.
+
+# dash "-" at the end of `base64` command means "read form STDIN",
+# which is that pipe form echo in this case
+if [[ "$1" == "base64_encoded_cmd:"* ]]; then
+  # RECEIVE AND EXECUTE MODE
+  $(echo "$1" | sed 's/^base64_encoded_cmd://' | base64 -d -)
+else
+  # ENCODE MODE
+  echo "base64_encoded_cmd:$(echo "$@" | base64 -)"
+fi
