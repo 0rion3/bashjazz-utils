@@ -6,6 +6,8 @@ Yellow='\e[0;33m'
 Blue='\e[0;34m'
 Purple='\e[0;35m'
 White='\033[38;5;15m'
+Magenta='\e[35m'
+Light_Magenta='\e[95'
 
 # Bold Colors
 Red_Bold='\e[1;31m'
@@ -19,7 +21,7 @@ Sky_Blue='\033[38;5;31m'
 Deep_Sky_Blue='\033[38;5;38m'
 
 # Background colors
-Bgrn_Red='\e[41m'
+Bgrnd_Red='\e[41m'
 Bgrnd_Green='\e[42m'
 Bgrnd_Yellow='\e[43m'
 Bgrnd_Blue='\e[44m'
