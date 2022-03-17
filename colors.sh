@@ -5,9 +5,9 @@ Cyan='\e[0;36m'
 Yellow='\e[0;33m'
 Blue='\e[0;34m'
 Purple='\e[0;35m'
-White='\033[38;5;15m'
 Magenta='\e[35m'
 Light_Magenta='\e[95'
+White='\e[38;5;15m'
 
 # Bold Colors
 Red_Bold='\e[1;31m'
@@ -36,15 +36,16 @@ Light_Blue='\e[38;5;75m'
 Gray='\033[38;5;245m'
 Cyan1='\033[38;5;51m'
 Olive_Green='\033[38;5;192m'
+Brown='\e[38;5;202m'
 
 # Font styles
 Underline='\033[34;4m'
 Underline_Off='\033[24m'
 Bold='\033[1m'
-Dim="\033[2m"
+Dim='\033[2m'
 
 # Warning foreground colors
-Pink="\033[38;5;203m"
+Pink='\033[38;5;203m'
 Color_WARN="$Pink"
 
 # RESET FORMATTING

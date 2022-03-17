@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+source $BASHJAZZ_PATH/utils/pwd_prompt.sh
+#Pwd_colorized_print
+Pwd_print
