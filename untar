@@ -3,5 +3,5 @@
 if [[ "$1" =~ /^[^.].tgz$/ ]]; then
   tar xf
 else
-  tar -xvzf "$1"
+  tar xvzf "$1"
 fi
