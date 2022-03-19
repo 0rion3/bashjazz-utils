@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+if [[ "${@}" == '--keep-dir-suffixes='* ]]; then
+  KEEP_DIR_SUFFIXES=( $(echo "${@}" | \
+    grep -oE '\-\-keep-dir-suffixes=.+' | \
+    sed -r 's/--keep-dir-suffixes=//'   | tr ',' ' '
+  ))
+fi
+
 source $BASHJAZZ_PATH/utils/pwd_prompt.sh
-#Pwd_colorized_print
 Pwd_print
+#Pwd_colorized_print
