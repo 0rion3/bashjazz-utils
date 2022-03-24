@@ -16,7 +16,7 @@ urlencode() {
 
   for (( i = 0; i < length; i++ )); do
     local c="${1:i:1}"
-    if [ $(echo "$c" | grep -P "$regexp") ] || [[ "$excludes" == *"$c"* ]]; then
+    if [ $(echo "$c" | grep -E "$regexp") ] || [[ "$excludes" == *"$c"* ]]; then
       printf "$c"
     elif [[ $c == '%' ]]; then
       printf '\x25'

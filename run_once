@@ -52,8 +52,8 @@ if [ -n "$wm_class_to" ]; then
 else
   # Otherwise, we check the output of `ps aux` and attempt
   # to find there the exact full command with all the arguments.
-  echo "$(ps aux | grep -P "$name_regexp_to_match" | grep -v "run_once")"
-  if [ -n "$(ps aux | grep -P "$name_regexp_to_match" | grep -v "run_once")" ]; then is_running="yes"; fi
+  echo "$(ps aux | grep -E "$name_regexp_to_match" | grep -v "run_once")"
+  if [ -n "$(ps aux | grep -E "$name_regexp_to_match" | grep -v "run_once")" ]; then is_running="yes"; fi
 fi
 print_log "    Process name: $process_name"
 print_log "    Window class from: $wm_class_from"

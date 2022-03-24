@@ -34,7 +34,7 @@ rootrun() {
     # we hit \n that isn't preceded by the \ char.
     full_command=""
     for c in "${commands[@]}"; do
-      if echo "$c" | grep -P '\\\s*'; then
+      if echo "$c" | grep -E '\\\s*'; then
         full_command="$full_command $(echo "$c" | sed 's/\\/ /')"
       else
         eval "$prefix $full_command $c"
