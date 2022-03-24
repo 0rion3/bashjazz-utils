@@ -10,4 +10,4 @@
 # Tested with the following shells: sh, bash, zsh, tcsh, csh, fish
 # On these operating systems:       FreeBSD, Ubuntu, MacOSX
 
-getent passwd $USER | grep -oE '[^\/]+$'
+getent passwd $USER 2> /dev/null || echo $SHELL | grep -oE '[^\/]+$'
