@@ -1,10 +1,17 @@
-# Intentionally not specifying the actual shell at the top,
-# as the the very purpose of this file is to be sourced by whichever
-# shell is running and return the shell's name.
+# Intentionally not specifying the shell to run this script with the usual
+# #!/ at the top. The very purpose of this file is to be sourced by whichever
+# shell is running and print back the shell's name.
 
-# This code was tested with sh, bash, zsh, tcsh and csh; On Linux and FreeBSD.
-# In FreeBSD the `ps -p` returns the full path to the shell executable, not just its name,
-# I had to adjust for that with another call to grep. I'm also not using the -P flag with
-# grep as Perl support for grep might not be available and it's not reasonable to ask
-# the user to install Perl for just this one line of code. Which is a very useful line of code.
-ps -p $$ | tail -n1 | grep -Eo '[ \/][a-zA-Z]+' | tail -n1 | grep -Eo '[a-zA-Z]+'
+# IMPORTANT: this script prints back the SHELL THAT CURRENT SCRIPT IS RUNNING
+#            and NOT the one that's default for the user. If you want to get
+#            user's default shell, use ./user_shellname.sh script.
+
+# Tested with the following shells: sh, bash, zsh, tcsh, csh
+# On these operating systems:       FreeBSD, Ubuntu, MacOSX
+#
+# Throws ERROR with:                FISH SHELL, it doesn't like $$
+#
+# Still, should be be highly portable
+
+ps -o comm= $$ | tr -d '-' # Removing "-" character, because it's in the output
+                           # in MacOSX for some reasons.
