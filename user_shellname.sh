@@ -10,9 +10,4 @@
 # Tested with the following shells: sh, bash, zsh, tcsh, csh, fish
 # On these operating systems:       FreeBSD, Ubuntu, MacOSX
 
-function print_shell() {
-  getent passwd $USER 2> /dev/null
-  echo $SHELL
-}
-
-print_shell | head -n1 | grep -oE '[^\/]+$'
+sh -c 'echo "$(getent passwd $USER 2> /dev/null || echo $SHELL)" | grep -oE "[^\/]+$"'
