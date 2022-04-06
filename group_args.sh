@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
 # This scripts separates arguments into two groups
-# based on the separator passed in $1. However, before proceeding
-# we must use shift() bult-in function to remove that first argument
-# and use the remaining arguments to do what the caller expects.
-separator="$1"
+# However, before proceeding we must use shift() bult-in function to remove that
+# first argument and use the remaining arguments to do what the caller expects.
 shift
-#
 # After Successfully separating arguments into groups, it puts them into two variables:
 # $args_before_separator and $arg_after_separator - declared as global - so that the script
 # that sources this script would be able to use them.
