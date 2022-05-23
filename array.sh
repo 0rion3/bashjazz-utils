@@ -12,6 +12,19 @@ Array_contains() {
   return 1
 }
 
+Array_get_index_for() {
+  local item="$1"
+  shift
+  local arr=( ${@} )
+
+  for i in ${!arr[@]}; do
+    if [[ "${arr[$i]}" == "$item" ]]; then
+      echo "$i" && return 0
+    fi
+  done
+  return 1
+}
+
 Array_join() {
   arr=$1
   joiner=$2

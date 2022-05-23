@@ -23,7 +23,7 @@ declare -A PWD_COLORS=(     \
 declare -A CUSTOM_PWD_COLORS=()
 
 Pwd_replace_home_with_tilda() {
-  result="$(printf "$(pwd)" | sed -r "s|$HOME|~|")"
+  result="$(printf "$(pwd)" | sed "s|$HOME|~|")"
   if [[ "$(pwd)" == "$HOME" ]]; then
     result="$(Pwd_colorize standalone_tilda "$result")"
   fi
@@ -39,7 +39,7 @@ Pwd_replace_home_with_tilda() {
 # and providing it key/value value pairs as arguments (see comments above that
 # function.
 #
-# Here's a diagram serving as an example of how the the function
+# Here's a diagram serving as an example of how the function
 # would break down a particular path:
 #
 #                | $kept_path_suffix |
@@ -75,24 +75,29 @@ Pwd_strip() {
   PWD_PATH_STRIP_REPLACEMENT="${PWD_PATH_STRIP_REPLACEMENT:-./}"
   PWD_PATH_STRIP_REPLACEMENT="$(Pwd_colorize strip_replacement "$PWD_PATH_STRIP_REPLACEMENT")"
 
-  local base_path="${1:-"$PWD"}"
-  local name="$(PathSection_name "$base_path")"
+  local base_path="${1:-"$(pwd)"}"
+  local name="$(basename "$base_path")"
+  local full_path="$(pwd)"
+  local out
 
   if [[ -n "$name" ]]; then
-    local out
+
     local kept_path_suffix="$(Array_contains "$name" ${KEEP_DIR_SUFFIXES[@]})"
-    if [[ -n "$kept_path_suffix" ]]; then
-      local parent_dir_full_path="$(dirname "$base_path")"
-      local name="$(PathSection_name "$parent_dir_full_path")"
-      out="$(Pwd_colorize main "$name")"
-      local kept_path_suffix="$kept_path_suffix"
-      [[ -n "$kept_path_suffix" ]] && out="$out/$(Pwd_colorize kept_path_suffix "$kept_path_suffix")"
-      local subpath="$(printf "$(pwd)" | sed -r "s|^$base_path/?||")"
-      [[ -n "$subpath" ]] && out="$out/$(Pwd_colorize subpath "$subpath")"
-    else
-      local out="$(Pwd_colorize main "$name")"
+
+    local parent_dir_full_path="$(dirname "$base_path")"
+    local subpath="$(echo "$full_path" | sed -E "s|^$base_path||" | sed -E "s|/$||")"
+
+    if [[ -n "$kept_path_suffix" ]] && [[ "$base_path" == *"$kept_path_suffix" ]]; then
+      out="$(basename "$parent_dir_full_path")/"
     fi
-    printf "$PWD_PATH_STRIP_REPLACEMENT$out" | sed 's|//+|/|g'
+
+    if [[ -n "$subpath" ]]; then
+      out+="$(Pwd_colorize main "$name")/$(Pwd_colorize subpath "$subpath")"
+    else
+      out+="$(Pwd_colorize main "$name")"
+    fi
+
+    printf "$PWD_PATH_STRIP_REPLACEMENT$out" | sed 's|//|/|g'
   else 
     printf "$(pwd)"
   fi
@@ -121,15 +126,16 @@ Pwd_colorize() {
 
 Pwd_in_repo_path() {
   local path="$(pwd)"
-  local repo_path
-  while [[ -z "$repo_path" ]] || [[ "$path" != "/" ]]; do
+  while [[ -z "$path" ]] || [[ "$path" != "/" ]]; do
     [[ "$path" == "/" ]] && break
     if [ -d "$path/.git" ] || [ -f "$path/.fslckout" ]; then
-      repo_path="$path"
+      local repo_found=yes
+      break
+    else
+      path="$(dirname "$path")"
     fi
-    path="$(dirname "$path")"
   done
-  printf "$repo_path"
+  [[ -n $repo_found ]] && printf "$path"
 }
 
 Pwd_colorized_print() {
@@ -158,8 +164,8 @@ Pwd_colorized_print() {
 Pwd_print() {
   local repo_path="$(Pwd_in_repo_path)"
   if [[ -n "$repo_path" ]]; then
-    printf "$(Pwd_strip "$repo_path")"
+    Pwd_strip "$repo_path"
   else
-    printf "$(Pwd_replace_home_with_tilda)"
+    Pwd_replace_home_with_tilda
   fi
 }
