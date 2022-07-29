@@ -2,6 +2,10 @@
 
 newline='
 '
+
+is_root()  { if [[ $UID == 0 && $EUID == 0 ]]; then return 0; else return 1; fi; }
+not_root() { if is_root;                       then return 1; else return 0; fi; }
+
 rootrun() {
 
   # You can provide additional options for sudo by
@@ -25,8 +29,11 @@ rootrun() {
     fi
   fi
 
-  prefix="echo \"$sudo_password\" | sudo -S $WITH_SUDO_OPTIONS"
-    if [[ "$1" == *"$newline"* ]]; then
+  if not_root; then
+    prefix="echo \"$sudo_password\" | sudo -S $WITH_SUDO_OPTIONS"
+  fi
+
+  if [[ "$1" == *"$newline"* ]]; then
     readarray -t commands <<<"$1" # splits by newlines, each command is run with its own sudo and prefix
 
     # But we have to account for \ chars, which extend the command
@@ -48,6 +55,3 @@ rootrun() {
   unset WITH_SUDO_OPTIONS
 
 }
-
-is_root()  { if [[ $UID == 0 && $EUID == 0 ]]; then return 0; else return 1; fi; }
-not_root() { if is_root;                       then return 1; else return 0; fi; }

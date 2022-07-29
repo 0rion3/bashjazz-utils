@@ -73,7 +73,7 @@ if [[ $out == "gui" ]]; then
   #DBUS_SESSION_BUS_ADDRESS="$(sudo -u $receiver dbus-launch | head -n1 | sed 's/DBUS_SESSION_BUS_ADDRESS=//')"
   dunstify -u $urgency -t $timeout "$title" "$body" > /dev/null
 else
-  source $BASHJAZZZ_PATH/utils/formatting.sh
+  source $BASHJAZZ_PATH/utils/formatting.sh
   case $urgency in
     (low)       color="gray";;
     (normal)    color="white";;
