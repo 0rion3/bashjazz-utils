@@ -9,6 +9,9 @@ Magenta='\e[35m'
 Light_Magenta='\e[95'
 White='\e[38;5;15m'
 
+# Dark colors
+Dark_Gray="\e[1;30m"
+
 # Bold Colors
 Red_Bold='\e[1;31m'
 Green_Bold='\e[1;32m'
@@ -33,10 +36,10 @@ On_Gray='\e[48;5;8m'
 # Additional colors
 Light_Gray='\e[38;5;250m'
 Light_Blue='\e[38;5;75m'
-Gray='\033[38;5;245m'
 Cyan1='\033[38;5;51m'
 Olive_Green='\033[38;5;192m'
 Brown='\e[38;5;202m'
+Gray='\033[38;5;245m'
 
 # Font styles
 Underline='\033[34;4m'
