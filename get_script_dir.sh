@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-get_script_dir () {
+get_script_dir() {
   SOURCE="$0"
   # While $SOURCE is a symlink, resolve it
   while [ -h "$SOURCE" ]; do

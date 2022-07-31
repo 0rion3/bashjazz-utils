@@ -55,3 +55,4 @@ Color_WARN="$Pink"
 Format_Off='\e[0m'
 ColorOff='\e[0m'
 Color_Off='\e[0m'
+NoF='\e[0m'
