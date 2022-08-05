@@ -39,6 +39,6 @@ ShellName() {
     fi
   }
 
-}
+  local cmd="$1"; shift; $cmd ${@} # calling a nested function
 
-ShellName $1
+}
