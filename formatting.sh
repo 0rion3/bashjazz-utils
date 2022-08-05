@@ -17,7 +17,7 @@ nl() {
 
 color() {
   color=$1
-  if [[ "$color" == "off" ]]; then
+  if [[ "$color" =~ ^(off|no|0)$ ]]; then
     color=$Color_Off
   else
   #
@@ -28,6 +28,14 @@ color() {
   fi
   echo -n "$color"
 }
+# Not to confuse with "Clear" or any other meaning, this stands short
+# for color. A short synonym for `color`. Can later be removed if any conflicts
+# are found.
+clr() {
+  clr ${@}
+}
+# An alias for `color off`, because you don't want to type all that.
+nof() { color off }
 
 wrap() {
   # $format, $prefix and $suffix are always function name(s) with arguments
