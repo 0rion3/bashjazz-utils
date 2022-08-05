@@ -29,15 +29,15 @@ ShellName() {
     # Tested with the following shells: sh, bash, zsh, tcsh, csh, fish
     # On these operating systems:       FreeBSD, Ubuntu, MacOSX
 
-    # This the usual linux/BSD way of finding out user's shell...
-    if [[ -n $(which getent) ]]; then
+    if [[ -n "$(which getent)" ]]; then
+      # This the usual linux/BSD way of finding out user's shell...
       sh -c 'echo "$(getent passwd $USER 2> /dev/null || echo $SHELL)" | grep -oE "[^\/]+$"'
-    # For MacOSX, one cannot get user's SHELL with `getent`, because it might
-    # simply not be installed, which is why we use this additional code here.
     else
+      # For MacOSX, one cannot get user's SHELL with `getent`, because it might
+      # simply not be installed, which is why we use this additional code here.
       dscl . -read $HOME | grep 'UserShell:' | awk '{print $2}' | grep -oE '[a-zA-Z0-9]*$'
-    else
-  fi
+    fi
+  }
 
 }
 
