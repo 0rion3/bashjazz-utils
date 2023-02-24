@@ -22,8 +22,9 @@ rootrun() {
   if not_root; then
     # Checks if already have the password. If not, let's request it.
     if [[ -z "$sudo_password" ]]; then
-      # rootrun is typically called many times, we don't want to be checking
-      # whether password was already request in every script that uses it.
+      # `rootrun` is typically called many times, we don't want to be checking
+      # whether password has already been requested before in every script 
+      # that uses `rootrun`.
       declare -g sudo_password="$($BASHJAZZ_PATH/utils/request_password "Password for sudo")"
       echo ""
     fi
