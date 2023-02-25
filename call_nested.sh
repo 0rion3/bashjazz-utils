@@ -49,12 +49,14 @@ call_nested() {
 
   local mainf=$1
   local nestedf=$2
+  shift 1
 
   if [[ "$nestedf" == "--all" ]]; then
-    shift 2
     $mainf all $@
   else
-    shift 1
+    if [[ "$mainf" == "--all" ]]; then
+      local mainf="all"
+    fi
     $mainf $@
   fi
 
