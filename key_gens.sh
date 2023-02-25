@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
+source $BASHJAZZ_PATH/utils/call_nested.sh
+
 KeyGens() {
 
   new_ssh_key() {
+    echo "Generating self-signed ssh key: ~/.ssh/${1:-id_ed25519}..."
     ssh-keygen -q -t ed25519 -N '' -f ~/.ssh/${1:-id_ed25519} <<<y >/dev/null 2>&1
+    echo "done."
   }
 
   nginx_self_signed_cert() {
@@ -20,9 +24,16 @@ KeyGens() {
 
     openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
 
+    echo "done."
+
+  }
+
+  all() {
+    new_ssh_key && nginx_self_signed_cert
   }
 
   # Calling nested functions
-  local f="$1"; shift; $f $@
+  echo "KeyGens $@"
+  call_nested $@
 
 }
