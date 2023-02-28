@@ -6,6 +6,12 @@ rest_of_the_name="${process_name:1}"
 grep_str=$(echo "[$first_char]$rest_of_the_name")
 result=$(ps aux | grep -v 'isup' | grep "$(echo $grep_str)")
 if [[ -n "$caller_name" ]]; then
-  result=$(echo "$result" | grep -v "$caller_name")
+  result=$(echo "$result" | grep -v "$caller_name" | xargs)
 fi
-echo "$result"
+
+if [[ -n "$result" ]]; then
+  echo "$result" # return actual string in case we're checking it
+  exit 0         # then return status when we need $?
+else
+  exit 1         # return exit code 1 and print nothing
+fi
