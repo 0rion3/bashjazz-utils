@@ -1,17 +1,41 @@
 #!/usr/bin/env bash
+
+# Exit code 0:   means a program is RUNNING
+#
+# Exit code 127: (command not found) is return and used to signify
+#                that the process is not found to be running. I thought it's
+#                better than returning 1.
+
+
+# We might not always this program to print anything. In fact in complicates
+# writing scripts and the flag will soon be deprecated in favor of -v or and
+# --verbose flags. But until all scripts using it are fixed, the default
+# behavior will be to print the output AND exit with the right exit code.
+#
+if [[ "$1" == '--quiet' ]] || [[ "$1" == '-q' ]]; then
+  print_output='no'
+  shift
+fi
+
 process_name="$1"
-caller_name="$2"
+called_name="$2"
 first_char="${process_name:0:1}"
 rest_of_the_name="${process_name:1}"
-grep_str=$(echo "[$first_char]$rest_of_the_name")
-result=$(ps aux | grep -v 'isup' | grep "$(echo $grep_str)")
+
+# If process name begins with the "/" character (which may be the case when
+# the process name uses full path to its executable) we must escape forward
+# slashes before we process it with grep.
+if [[ "$first_char" == '/' ]]; then first_char='\/'; fi
+
+grep_str="[$first_char]$rest_of_the_name"
+result="$(ps aux | grep -v 'isup' | grep -E "$grep_str")"
 if [[ -n "$caller_name" ]]; then
-  result=$(echo "$result" | grep -v "$caller_name" | xargs)
+  result=$(echo "$result" | grep -v "$caller_name")
 fi
 
 if [[ -n "$result" ]]; then
-  echo "$result" # return actual string in case we're checking it
-  exit 0         # then return status when we need $?
+  [[ $print_output != 'no' ]] && echo "$result"
+  exit 0
 else
-  exit 1         # return exit code 1 and print nothing
+  exit 127
 fi
